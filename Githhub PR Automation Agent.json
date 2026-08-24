@@ -1,0 +1,363 @@
+{
+  "name": "Githhub PR Automation Agent",
+  "nodes": [
+    {
+      "parameters": {
+        "content": "**Google Sheet Best Practices**\nEnables the AI agent to reference to your team coding guidelines stored in a Google Sheet for more accurate and opinionated reviews.\nYou can replace Google Sheets with any other database or tool.",
+        "height": 224,
+        "width": 260,
+        "color": 6
+      },
+      "id": "c58e9386-93b9-4ea2-a339-4ddcff5a78f5",
+      "name": "Sticky Note5",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        1696,
+        416
+      ]
+    },
+    {
+      "parameters": {
+        "content": "**PR Labeler (optional)**\nAutomatically adds a label like *ReviewedByAI* to the pull request once the AI comment is posted.",
+        "height": 152,
+        "color": 7
+      },
+      "id": "2243ea36-5714-49f2-a1e7-e664179b3941",
+      "name": "Sticky Note4",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        2096,
+        -128
+      ]
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.user_message }}",
+        "options": {}
+      },
+      "id": "8e10f93b-142d-44fe-9573-0b9faeb19f54",
+      "name": "Code Review Agent",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.9,
+      "position": [
+        1520,
+        64
+      ]
+    },
+    {
+      "parameters": {
+        "content": "**Github Comment Poster**\nPosts the AI-generated review as a comment on the pull request using GitHub API.",
+        "color": 5
+      },
+      "id": "33786dc0-40a8-4887-9d24-780184584222",
+      "name": "Sticky Note3",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        1792,
+        -128
+      ]
+    },
+    {
+      "parameters": {
+        "content": "**3-Create Prompt from diffs**\nThis Code node runs a JavaScript snippet to:\n-Parse file diffs from the previous HTTP Request node\n-Format each diff with its file name\n-Build a structured natural language prompt for the AI agent\n\nThe final output is a clear, contextual instruction like:\n*\"You are a senior iOS developer. Please review the following code changes in these files...\"*\n",
+        "height": 352,
+        "width": 360,
+        "color": 2
+      },
+      "id": "5144e770-8101-4713-a7cb-d8806ea3eb81",
+      "name": "Sticky Note2",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        1200,
+        -320
+      ]
+    },
+    {
+      "parameters": {
+        "content": "**2-Get PR Diffs**\nThe HTTP Request node fetches the list of changed files and their diffs from the pull request that triggered the workflow. It uses the GitHub REST API to retrieve this data dynamically based on the trigger payload.\n\nhttps://api.github.com/repos/{{$json.body.sender.login}}/{{$json.body.repository.name}}/pulls/{{$json.body.number}}/files",
+        "height": 300,
+        "width": 340,
+        "color": 3
+      },
+      "id": "97ba20ba-d9e8-4e45-b8d7-b7bdd2668445",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        912,
+        240
+      ]
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "operation": "edit",
+        "owner": {
+          "__rl": true,
+          "value": "krishnajais001",
+          "mode": "list",
+          "cachedResultName": "krishnajais001",
+          "cachedResultUrl": "https://github.com/krishnajais001"
+        },
+        "repository": {
+          "__rl": true,
+          "value": "n8n-Learning",
+          "mode": "list",
+          "cachedResultName": "n8n-Learning",
+          "cachedResultUrl": "https://github.com/krishnajais001/n8n-Learning"
+        },
+        "issueNumber": "={{ $('PR Trigger').first().json.body.number }}",
+        "editFields": {
+          "labels": [
+            {
+              "label": "ReviewedByAI"
+            }
+          ]
+        }
+      },
+      "id": "a05c39fa-654d-4621-9203-d54ce7abe15d",
+      "name": "Add Label to PR",
+      "type": "n8n-nodes-base.github",
+      "typeVersion": 1,
+      "position": [
+        2112,
+        64
+      ],
+      "webhookId": "c98f39f1-603b-4013-9149-53b4cc31b611",
+      "credentials": {
+        "githubOAuth2Api": {
+          "id": "7GO1OQHVLAsB9a1C",
+          "name": "GitHub account 3"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "resource": "review",
+        "owner": {
+          "__rl": true,
+          "value": "krishnajais001",
+          "mode": "list",
+          "cachedResultName": "krishnajais001",
+          "cachedResultUrl": "https://github.com/krishnajais001"
+        },
+        "repository": {
+          "__rl": true,
+          "value": "n8n-Learning",
+          "mode": "list",
+          "cachedResultName": "n8n-Learning",
+          "cachedResultUrl": "https://github.com/krishnajais001/n8n-Learning"
+        },
+        "pullRequestNumber": "={{ $('PR Trigger').first().json.body.number }}",
+        "event": "comment",
+        "body": "={{ $json.output }}",
+        "additionalFields": {}
+      },
+      "id": "962eca4d-0210-4932-a1c1-5cca51c3bca8",
+      "name": "GitHub Robot",
+      "type": "n8n-nodes-base.github",
+      "typeVersion": 1.1,
+      "position": [
+        1888,
+        64
+      ],
+      "webhookId": "39c2fe8b-f686-4699-8450-2a5b4c263d93",
+      "credentials": {
+        "githubOAuth2Api": {
+          "id": "7GO1OQHVLAsB9a1C",
+          "name": "GitHub account 3"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const files = $input.all().map(item => item.json);\n\nlet diffs = '';\n\nfor (const file of files) {\n  diffs += `### Fichier : ${file.filename}\\n\\n`;\n\n  if (file.patch) {\n    // IMPORTANT : On remplace tous les triple backticks par simple (ou échappement)\n    const safePatch = file.patch.replace(/```/g, \"''\");\n\n    diffs += \"```diff\\n\";\n    diffs += safePatch;\n    diffs += \"\\n```\\n\";\n  } else {\n    diffs += \"_Pas de patch disponible (probablement fichier binaire)._\";\n  }\n\n  diffs += \"\\n---\\n\\n\";\n}\n\nconst userMessage = `\nYou are a senior iOS developer. \nPlease review the following code changes in these files :\n\n${diffs}\n\n---\n\nYour mission:\n\n- Review the proposed code changes file by file and by significant modification.\n\n- Generate inline comments on the relevant lines of code.\n\n- Ignore files without patches.\n\n- Do not repeat the code snippet or the filename.\n\n- Write the comments directly, without introducing the context.\n`;\n\nreturn [\n  {\n    json: {\n      user_message: userMessage.trim()\n    }\n  }\n];"
+      },
+      "id": "3da50700-e41a-461c-81f8-830bbb276c67",
+      "name": "Create target Prompt from PR Diffs",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1280,
+        64
+      ]
+    },
+    {
+      "parameters": {
+        "url": "=https://api.github.com/repos/{{$json.body.sender.login}}/{{$json.body.repository.name}}/pulls/{{$json.body.number}}/files",
+        "options": {}
+      },
+      "id": "c55f5fff-f024-44aa-a0a3-1c2b21b65007",
+      "name": "Get file's Diffs from PR",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1040,
+        64
+      ]
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-5-mini"
+        },
+        "options": {}
+      },
+      "id": "251c892f-21ee-486a-b330-5d9849c22141",
+      "name": "OpenAI Chat Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        1488,
+        272
+      ],
+      "credentials": {
+        "openAiApi": {
+          "id": "oW7I9n8rKZWIyHkw",
+          "name": "n8n free OpenAI API credits"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "**1-The GitHub Trigger** node initiates the workflow whenever a pull request event occurs on a specified repository. It enables real-time automation based on GitHub activity.\n"
+      },
+      "id": "60d75cc3-b4a8-4843-b3b0-5c5977fdc213",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        704,
+        -128
+      ]
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "owner": {
+          "__rl": true,
+          "value": "krishnajais001",
+          "mode": "list",
+          "cachedResultName": "krishnajais001",
+          "cachedResultUrl": "https://github.com/krishnajais001"
+        },
+        "repository": {
+          "__rl": true,
+          "value": "n8n-Learning",
+          "mode": "list",
+          "cachedResultName": "n8n-Learning",
+          "cachedResultUrl": "https://github.com/krishnajais001/n8n-Learning"
+        },
+        "events": [
+          "pull_request"
+        ],
+        "options": {}
+      },
+      "id": "910b0f78-a84f-423f-a2c8-bd5cee198126",
+      "name": "PR Trigger",
+      "type": "n8n-nodes-base.githubTrigger",
+      "typeVersion": 1,
+      "position": [
+        720,
+        80
+      ],
+      "webhookId": "4b46ad01-1cfc-4cc9-aee1-60a9d04e3ce8",
+      "credentials": {
+        "githubOAuth2Api": {
+          "id": "7GO1OQHVLAsB9a1C",
+          "name": "GitHub account 3"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Code Review Agent": {
+      "main": [
+        [
+          {
+            "node": "GitHub Robot",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "GitHub Robot": {
+      "main": [
+        [
+          {
+            "node": "Add Label to PR",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create target Prompt from PR Diffs": {
+      "main": [
+        [
+          {
+            "node": "Code Review Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get file's Diffs from PR": {
+      "main": [
+        [
+          {
+            "node": "Create target Prompt from PR Diffs",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Code Review Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "PR Trigger": {
+      "main": [
+        [
+          {
+            "node": "Get file's Diffs from PR",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "892d3ed7-8477-461e-a070-a487f6e37e7b",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "d4be8032cb9ed982c80dc34b925a053cad49dd4fcfbf37e76e97708b781338c2"
+  },
+  "nodeGroups": [],
+  "id": "Spmhm1WN3NvGw5L3",
+  "tags": []
+}

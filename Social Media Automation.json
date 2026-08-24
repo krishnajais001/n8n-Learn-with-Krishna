@@ -1,0 +1,274 @@
+{
+  "name": "Social Media Automation",
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "c1a29bf0-0911-48e3-be16-bda8aa527fd1",
+      "name": "When clicking ‘Execute workflow’",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -176,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "task": "MTU0OTU4MTg3MDE0MDUwODcwMjA6MDow",
+        "additionalFields": {}
+      },
+      "id": "5c7f8139-7e3b-41c3-aad9-513eb2d2364f",
+      "name": "Get many tasks",
+      "type": "n8n-nodes-base.googleTasks",
+      "typeVersion": 1,
+      "position": [
+        112,
+        0
+      ],
+      "credentials": {
+        "googleTasksOAuth2Api": {
+          "id": "BnS4E2Q34tMFE0g9",
+          "name": "Google Tasks account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "gpt-5-mini",
+          "mode": "list",
+          "cachedResultName": "GPT-5-MINI"
+        },
+        "responses": {
+          "values": [
+            {
+              "content": "=Hi, can you please generate the three LinkedIn post ideas based on the below research? \n\n{{ $json.notes }}\n\nMake sure that you also provide the reference for what exactly is needed to write the post. \n\nOutput three ideas like below:\n\n<topic1>\n<reasearch1>\n\n<topic2>\n<reasearch2>\n\n<topic3>\n<reasearch3>"
+            }
+          ]
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "id": "e399a6ec-994f-44df-b8b7-331b703a2026",
+      "name": "Message a model",
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 2.3,
+      "position": [
+        368,
+        0
+      ],
+      "credentials": {
+        "openAiApi": {
+          "id": "oW7I9n8rKZWIyHkw",
+          "name": "n8n free OpenAI API credits"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Here is the content, which contains three post ideas and references below:\n{{ $json.output[0].content[0].text }}",
+        "options": {
+          "systemMessage": "You are a helpful assistant who helps to generate the LinkedIn post for the user.\n\nYou will be given content that contains three post ideas and references. For each idea, write a LinkedIn post and add each row to the Google Sheet tool provided to you, which has three columns: topic, reference, and post.\n\nEach post should include a good hashtag with the hashtag text at the bottom."
+        }
+      },
+      "id": "f4caaeb9-6b09-4a5f-9dc5-5a10447ca22e",
+      "name": "AI Agent",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        816,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-5-mini"
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "id": "af6b7a3e-2684-4c75-b220-03a8fa45e78a",
+      "name": "OpenAI Chat Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        784,
+        224
+      ],
+      "credentials": {
+        "openAiApi": {
+          "id": "oW7I9n8rKZWIyHkw",
+          "name": "n8n free OpenAI API credits"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1EepsBxOj_CKbTbfianQpHE5Yl0SO7FevyYBbSu9AZJM",
+          "mode": "list",
+          "cachedResultName": "Content Ideas",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1EepsBxOj_CKbTbfianQpHE5Yl0SO7FevyYBbSu9AZJM/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1EepsBxOj_CKbTbfianQpHE5Yl0SO7FevyYBbSu9AZJM/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Topic": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Topic', ``, 'string') }}",
+            "Reference ": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Reference_', ``, 'string') }}",
+            "Post": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Post', ``, 'string') }}"
+          },
+          "schema": [
+            {
+              "id": "Topic",
+              "displayName": "Topic",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Reference ",
+              "displayName": "Reference ",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Post",
+              "displayName": "Post",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "id": "1ce2e642-5035-4aa5-a256-64077e55946e",
+      "name": "Append or update row in sheet in Google Sheets",
+      "type": "n8n-nodes-base.googleSheetsTool",
+      "typeVersion": 4.7,
+      "position": [
+        976,
+        208
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "QkDQdSsm7697JxZ0",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "## Social Media Automation — LinkedIn Post Generator\n\nA workflow that turns your Google Tasks research notes into ready-to-post LinkedIn content and logs it to a Google Sheet.\n\nFlow (step by step):\n\n    Manual trigger — you start it with \"Execute workflow\".\n    Get many tasks (Google Tasks) — pulls tasks from your task list; each task's notes field holds your research.\n    Message a model (OpenAI, GPT-5-mini) — takes that research and generates three LinkedIn post ideas, each with a topic and a reference.\n    AI Agent (OpenAI Chat Model) — reads those three ideas and writes a full LinkedIn post for each (with hashtags at the bottom).\n    Append row in sheet (Google Sheets tool) — the agent appends each result as a new row into your \"Content Ideas\" spreadsheet, across three columns: Topic, Reference, Post.\n\nResult: one click → three finished LinkedIn posts saved as rows in your Google Sheet, ready to review and publish.",
+        "height": 416,
+        "width": 928
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -96,
+        -496
+      ],
+      "typeVersion": 1,
+      "id": "e50c433f-5720-4c0c-bf51-2fd59ede4b8e",
+      "name": "Sticky Note"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "Get many tasks",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get many tasks": {
+      "main": [
+        [
+          {
+            "node": "Message a model",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Message a model": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Append or update row in sheet in Google Sheets": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "af85cd02-4e60-4e77-8a6e-88831655c0e4",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "d4be8032cb9ed982c80dc34b925a053cad49dd4fcfbf37e76e97708b781338c2"
+  },
+  "nodeGroups": [],
+  "id": "aqJHL5VkW7ViBfYt",
+  "tags": []
+}
